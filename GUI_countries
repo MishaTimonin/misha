@@ -1,0 +1,88 @@
+import pygame
+from pygame.locals import *
+
+pygame.init()
+
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1080
+
+WHITE = (200, 150, 100)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Выбор страны")
+
+countries = [
+    {"name": "Россия", "flag": pygame.image.load("russia_flag.jpg")},
+    {"name": "США", "flag": pygame.image.load("США.jpg")},
+    # Добавьте другие страны и флаги по вашему выбору
+]
+
+selected_country = None
+
+
+
+def draw_countries():
+    window.fill(WHITE)
+    flag_width = 500
+    flag_height = 300
+    flag_spacing = 900
+
+    for i, country in enumerate(countries):
+        flag = country["flag"]
+        flag = pygame.transform.scale(flag, (flag_width, flag_height))
+        flag_rect = flag.get_rect()
+        flag_rect.x = 50 + i * flag_spacing
+        flag_rect.y = 50
+        window.blit(flag, flag_rect)
+
+        font = pygame.font.Font(None, 36)
+        text = font.render(country["name"], True, BLACK)
+        text_rect = text.get_rect()
+        text_rect.x = flag_rect.x + (flag_width - text_rect.width) / 2
+        text_rect.y = 370
+        window.blit(text, text_rect)
+
+        # Добавление портретов президентов
+        president_portrait = pygame.image.load("portrait_" + country["name"] + ".jpg")
+        president_portrait = pygame.transform.scale(president_portrait, (500, 300))
+        portrait_rect = president_portrait.get_rect()
+        portrait_rect.x = flag_rect.x + (flag_width - portrait_rect.width) / 2
+        portrait_rect.y = 400  # Adjust the y position for the president's name
+        window.blit(president_portrait, portrait_rect)
+
+        if selected_country == i:
+            pygame.draw.rect(window, BLUE,
+                             (flag_rect.x - 5, flag_rect.y - 5, flag_width + 10, flag_height + 10), 2)
+
+
+def main():
+    global selected_country
+
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            elif event.type == MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+
+                for i, country in enumerate(countries):
+                    flag_rect = country["flag"].get_rect()
+                    flag_rect.x = 50
+                    flag_rect.y = 50 + i * 100
+
+                    if flag_rect.collidepoint(mouse_pos):
+                        selected_country = i
+
+        draw_countries()
+
+        pygame.display.update()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
