@@ -1,0 +1,79 @@
+import pygame
+import sys
+
+# Инициализация Pygame
+pygame.init()
+
+# Цвета
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Настройки окна
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Экономическое меню')
+
+# Шрифты
+font = pygame.font.SysFont(None, 36)
+
+tax_rate = 20
+gdp = 22000200
+government_spending = {'образование': 200, 'медицина': 300, 'оборона': 400}
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                tax_rate += 1  # Увеличение налоговой ставки при нажатии клавиши вверх
+            if event.key == pygame.K_DOWN:
+                tax_rate -= 1  # Уменьшение налоговой ставки при нажатии клавиши вниз
+            if event.key == pygame.K_e:
+                government_spending['образование'] += 50  # Увеличение расходов на образование при нажатии клавиши "e"
+            if event.key == pygame.K_h:
+                government_spending['медицина'] += 50  # Увеличение расходов на здравоохранение при нажатии клавиши "h"
+            if event.key == pygame.K_d:
+                government_spending['оборона'] += 50  # Увеличение расходов на оборону при нажатии клавиши "d"
+            if event.key == pygame.K_q:
+                government_spending['образование'] -= 50  # Уменьшение расходов на образование при нажатии клавиши "q"
+            if event.key == pygame.K_w:
+                government_spending['медицина'] -= 50  # Уменьшение расходов на здравоохранение при нажатии клавиши "w"
+            if event.key == pygame.K_r:
+                government_spending['оборона'] -= 50  # Уменьшение расходов на оборону при нажатии клавиши "r"
+
+    for category in government_spending:
+        if government_spending[category] < 0:
+            government_spending[category] = 0
+
+    # Вычисление общего количества расходов
+    total_spending = sum(government_spending.values())
+
+    screen.fill(WHITE)
+
+    # Отображение налоговых ставок
+    tax_text = font.render(f'Налоговая ставка: {tax_rate}%', True, BLACK)
+    screen.blit(tax_text, (50, 50))
+
+    # Отображение ВВП
+    gdp_text = font.render(f'ВВП: {gdp}', True, BLACK)
+    screen.blit(gdp_text, (50, 100))
+
+    # Отображение расходов государства
+    government_spending_text = font.render(f'Расходы государства:', True, BLACK)
+    screen.blit(government_spending_text, (50, 150))
+    y_offset = 200
+    for category, amount in government_spending.items():
+        text = font.render(f'{category}: {amount}', True, BLACK)
+        screen.blit(text, (50, y_offset))
+        y_offset += 50
+
+    # Отображение общего количества расходов
+    total_spending_text = font.render(f'Общие расходы: {total_spending}', True, BLACK)
+    screen.blit(total_spending_text, (50, 400))
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
