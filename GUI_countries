@@ -13,21 +13,47 @@ BLUE = (0, 0, 255)
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Выбор страны")
 
+background_image = pygame.image.load("map.jpg")
+
 countries = [
-    {"name": "Россия", "flag": pygame.image.load("russia_flag.jpg")},
-    {"name": "США", "flag": pygame.image.load("США.jpg")},
-    # Добавьте другие страны и флаги по вашему выбору
+    {"name": "Россия", "flag": pygame.image.load("russia_flag.jpg"), "map": pygame.image.load("map.jpg")},
+    {"name": "США", "flag": pygame.image.load("США.jpg"), "map": pygame.image.load("map.jpg")}
 ]
 
 selected_country = None
+tax_rate = 20
+gdp = 22000200
+government_spending = {'образование': 200, 'медицина': 300, 'оборона': 400}
 
+font = pygame.font.SysFont(None, 36)
+tax_rate = 20
+gdp = 22000200
+government_spending = {'образование': 200, 'медицина': 300, 'оборона': 400}
+
+def draw_economic_menu():
+    # Отображение налоговых ставок
+    tax_text = font.render (f'Налоговая ставка: {tax_rate}%', True, BLACK)
+    tax_text_rect = tax_text.get_rect ()
+    tax_text_rect.x = 1450
+    tax_text_rect.y = 700
+    window.blit (tax_text, tax_text_rect)
+
+
+def draw_map(country):
+    map_image = country["map"]
+    map_image = pygame.transform.scale(map_image, (window.get_width(), window.get_height()))
+    map_rect = map_image.get_rect()
+    map_rect.x = 0
+    map_rect.y = 0
+    window.blit(map_image, map_rect)
+    draw_economic_menu()
 
 
 def draw_countries():
-    window.fill(WHITE)
     flag_width = 500
     flag_height = 300
     flag_spacing = 900
+    window.fill(WHITE)
 
     for i, country in enumerate(countries):
         flag = country["flag"]
@@ -41,16 +67,23 @@ def draw_countries():
         text = font.render(country["name"], True, BLACK)
         text_rect = text.get_rect()
         text_rect.x = flag_rect.x + (flag_width - text_rect.width) / 2
-        text_rect.y = 370
+        text_rect.y = 370  # Adjust the y position for the country name
         window.blit(text, text_rect)
 
         # Добавление портретов президентов
         president_portrait = pygame.image.load("portrait_" + country["name"] + ".jpg")
-        president_portrait = pygame.transform.scale(president_portrait, (500, 300))
+        president_portrait = pygame.transform.scale(president_portrait, (100, 100))
         portrait_rect = president_portrait.get_rect()
         portrait_rect.x = flag_rect.x + (flag_width - portrait_rect.width) / 2
         portrait_rect.y = 400  # Adjust the y position for the president's name
         window.blit(president_portrait, portrait_rect)
+
+        president_name = "Президент " + country["name"]  # Example: Президент России
+        president_text = font.render(president_name, True, BLACK)
+        president_text_rect = president_text.get_rect()
+        president_text_rect.x = flag_rect.x + (flag_width - president_text_rect.width) / 2
+        president_text_rect.y = 510  # Adjust the y position for the president's name
+        window.blit(president_text, president_text_rect)
 
         if selected_country == i:
             pygame.draw.rect(window, BLUE,
@@ -58,9 +91,10 @@ def draw_countries():
 
 
 def main():
-    global selected_country
+    global selected_country, tax_rate
 
     running = True
+    menu_open = True
 
     while running:
         for event in pygame.event.get():
@@ -69,20 +103,38 @@ def main():
             elif event.type == MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
 
-                for i, country in enumerate(countries):
-                    flag_rect = country["flag"].get_rect()
-                    flag_rect.x = 50
-                    flag_rect.y = 50 + i * 100
+                if menu_open:
+                    for i, country in enumerate(countries):
+                        flag_rect = country["flag"].get_rect()
+                        flag_rect.x = 100
+                        flag_rect.y = 5 + i
 
-                    if flag_rect.collidepoint(mouse_pos):
-                        selected_country = i
+                        if flag_rect.collidepoint(mouse_pos):
+                            selected_country = i
+                            menu_open = False
+                else:
+                    menu_open = True
+                    selected_country = None
 
-        draw_countries()
+            elif event.type == KEYDOWN:
+                if event.key == K_LEFT:
+                    # Уменьшение налоговой ставки при нажатии на стрелку влево
+                    tax_rate = max(0, tax_rate - 5)
+                elif event.key == K_RIGHT:
+                    # Увеличение налоговой ставки при нажатии на стрелку вправо
+                    tax_rate = min(100, tax_rate + 5)
+
+        keys = pygame.key.get_pressed()
+        if menu_open:
+            window.blit(background_image, (0, 0))  # Отрисовка фонового изображения
+            draw_countries()
+        else:
+            draw_map(countries[selected_country])
+        draw_economic_menu()  # Обновление экономического меню после изменения налоговой ставки
 
         pygame.display.update()
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
