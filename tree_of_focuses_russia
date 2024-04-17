@@ -1,0 +1,65 @@
+
+import pygame
+from pygame.locals import *
+
+pygame.init()
+
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1080
+
+# Определение цветов
+WHITE = (200, 150, 100)
+
+# Создание окна
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Национальные Фокусы")
+
+focus_images = {
+    "Путь западничества": pygame.image.load("russia_focus.png"),
+    "Путь Русского консерватизма": pygame.image.load("russia_focus.png"),
+    "Путь Славянофилосв": pygame.image.load("russia_focus.png"),
+}
+
+# Основная функция для отображения меню
+def main_menu():
+    running = True
+    selected_focus = None  # Для хранения выбранного фокуса
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            elif event.type == MOUSEBUTTONDOWN and selected_focus is None:  # Проверка, что фокус еще не выбран
+                mouse_pos = pygame.mouse.get_pos()
+
+                # Проверка, на какой фокус нажал пользователь
+                for focus, image in focus_images.items():
+                    image_rect = image.get_rect()
+                    image_rect.x = 50
+                    image_rect.y = 50  # Расположение фокусов на экране
+                    if image_rect.collidepoint(mouse_pos):
+                        selected_focus = focus  # Сохранение выбранного фокуса
+                        break  # Прерываем цикл после выбора фокуса
+
+        window.fill(WHITE)
+
+        # Отображение изображений национальных фокусов
+        for i, (focus, image) in enumerate(focus_images.items()):
+            image_rect = image.get_rect()
+            image_rect.x = 50 + i * 250
+            image_rect.y = 50
+            window.blit(image, image_rect)
+
+        if selected_focus:  # Если фокус выбран, выводим сообщение
+            font = pygame.font.Font(None, 36)
+            text = font.render(f"Выбран фокус: {selected_focus}", True, (0, 0, 0))
+            text_rect = text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 50))
+            window.blit(text, text_rect)
+
+        pygame.display.update()
+
+    pygame.quit()
+
+# Запуск главного меню
+if __name__ == "__main__":
+    main_menu()
